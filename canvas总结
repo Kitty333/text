@@ -1,0 +1,211 @@
+什么是canvas(画布) 
+	1、使用JavaScript中的脚本来绘制图形，只有width，height属性
+
+	2、html属性设置width height时只影响画布本身不影画布内容
+	     css属性设置width height时不但会影响画布本身的高宽，还会使画布中的内容等比例缩放（缩放参照于画布默认的尺寸）
+
+	3、<canvas>元素只是一个固定大小的画布，想绘制内容，需要渲染上下文。
+     getContext()这个方法是用来获得渲染上下文（画笔）和它的绘画功能。
+
+	    getContext()只有一个参数，上下文的格式
+	----->获取方式
+		  var canvas = document.getElementById('box');
+		  var ctx = canvas.getContext('2d');
+		  
+	----->检查支持性
+		  var canvas = document.getElementById('tutorial');
+		  if (canvas.getContext){//判断是否支持canvas，存在画笔
+				var ctx = canvas.getContext('2d');
+			} 
+
+
+canvas绘制矩形
+	1、绘制矩形（canvas提供了三种方法绘制矩形）
+		---->绘制一个填充的矩形（填充色默认为黑色）
+		fillRect(x, y, width, height)：x轴偏移量,y轴偏移量,宽,高，不用加px作为单位
+		---->绘制一个矩形的边框（空心矩形）（默认边框为:一像素实心黑色）
+		strokeRect(x, y, width, height)：x轴偏移量,y轴偏移量,宽,高，不用加px作为单位
+		---->清除指定矩形区域（填充矩形，填充色为底色），让清除部分完全透明。
+		clearRect(x, y, width, height)：x轴偏移量,y轴偏移量,宽,高，不用加px作为单位
+
+		x与y指定了在canvas画布上所绘制的矩形的左上角（相对于原点）的坐标。
+		width和height设置矩形的尺寸。（存在边框的话，边框会在width上占据一个边框的宽度，height同理）
+
+	2、strokeRect时，边框像素渲染问题
+		按理渲染出的边框应该是1px的，canvas在渲染矩形边框时，边框宽度是平均分在偏移位置的两侧。
+		context.strokeRect(10,10,50,50):边框会渲染在9.5 和 10.5之间,浏览器是不会让一个像素只用自己的一半的，相当于边框会渲染在9到11之间
+		context.strokeRect(10.5,10.5,50,50):边框会渲染在10到11之间
+
+	3、添加样式和颜色
+    		fillStyle :设置图形的填充颜色。
+    		strokeStyle :设置图形轮廓的颜色。默认情况下，线条和填充颜色都是黑色（CSS 颜色值 #000000）
+    		lineWidth : 这个属性设置当前绘线的粗细。
+		属性值必须为正数。 0、 负数、 Infinity 和 NaN 会被忽略。默认值是1.0。
+
+	4、lineJoin：线条与线条间接合处的样式（默认是 miter）
+		round : 圆角
+		bevel : 斜角
+		miter : 直角
+
+	5、lineCap：线条末端样式
+		butt：线段末端以 方形 结束
+		round：线段末端以 圆形 结束
+		square：线段末端以 方形 结束，但是 增加 了一个宽度和线段相同，高度是线段厚度一半的矩形区域。
+
+
+canvas绘制路径
+	图形的基本元素是路径。路径是通过不同颜色和宽度的线段或曲线相连形成的不同形状的点的集合。
+	
+	开始绘画路径。  --beginPath()
+	首先，需要创建路径起始点。  --moveTo(x，y);//起点
+	然后你使用画图命令去画出路径   --lineTo(x，y);//从起点moveTo(x，y)到指定终点的线条
+	之后你把路径封闭。  --closePath();//闭合路径
+	一旦路径生成，你就能通过描边或填充路径区域来渲染图形。 
+		--fill();//填充图形
+		--stroke();//线条描绘
+	
+	**moveTo()起点到lineTo()终点，也可以2个lineTo()，第一个表示起点，第二个终点。
+	角度与弧度的js表达式：radians=(Math.PI/180)*deg   //角度转换成弧度
+
+	1、arc：画圆： 
+		arc(中心x坐标，中心y坐标，圆半径，起始角，结束角，顺逆) 
+		true=逆时针     flase=顺时针 
+
+	2、arcTo：圆弧
+		方法1：arc(中心x坐标，中心y坐标，圆半径，起始角，结束角，顺逆) 
+			注意：有关闭路径closePath（）和没有关闭的区别
+		方法2：moveTo(50, 50); 起始点
+          arcTo(200, 50, 200, 200, 100); 控制点1 ，控制点2 ，半径
+  			绘制的弧形是由两条切线所决定。
+			第 1 条切线：起始点和控制点1决定的直线。
+​			 第 2 条切线：控制点1 和控制点2决定的直线。
+    			
+  3、绘制贝塞尔曲线
+		<1>一次贝塞尔曲线就是直线
+		<2>二次贝塞尔曲线
+			quadraticCurveTo(cp1x, cp1y, x, y):
+			cp1x,cp1y为控制点，x,y为结束点
+
+      例子：
+        ctx.beginPath();
+        ctx.moveTo(10, 200); //起始点
+        var cp1x = 40, cp1y = 100;  //控制点
+        var x = 200, y = 200; // 结束点
+        ctx.quadraticCurveTo(cp1x, cp1y, x, y);//绘制二次贝塞尔曲线
+        ctx.stroke();
+
+		<3>三次贝塞尔曲线
+			bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)
+			cp1x,cp1y为控制点一，cp2x,cp2y为控制点二，x,y为结束点。
+
+      例子：
+        ctx.beginPath();
+        ctx.moveTo(40, 200); //起始点
+        var cp1x = 20, cp1y = 100;  //控制点1
+        var cp2x = 100, cp2y = 120;  //控制点2
+        var x = 200, y = 200; // 结束点
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);//绘制三次贝塞尔曲线
+        ctx.stroke();
+
+      1. 起始点为moveto时指定的点
+      2. 不需要指定半径
+      3. 圆弧必过moveTo指定的起始点和终止点
+
+
+canvas绘制文本
+	1、fillText(text, x, y)  --实心字体
+	2、strokeText(text, x, y )  --空心字体
+	 在指定的(x,y)位置填充指定的文本，绘制的最大宽度是可选的.
+
+
+canvas绘制图片
+	context.drawImage(img,x,y);
+	context.drawImage(img,x,y,w,h);
+    w 和 h 这两个参数用来控制 当像canvas画入时应该缩放的大小。
+	context.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);
+	//img图片，sx,sy剪切的起始点坐标 ；sw,sh剪切的宽高；dx,dy放置画布的起始点；dw,dh剪切完图片的宽高
+
+	例子：
+	var img = new Image();   // 创建img元素
+		img.onload = function(){
+  		ctx.drawImage(img, 0, 0)  //绘制img
+	}
+	img.src = 'myImage.png'; // 设置图片源地址
+
+
+状态的保存和恢复
+	*save()：保存画布(canvas)的所有状态
+	*restore()：save 和 restore 方法是用来保存和恢复 canvas 状态的，都没有参数。
+	Canvas 的状态就是当前画面应用的所有样式和变形的一个快照。
+
+
+绘制变形图片	
+	1、移动 
+		translate(x, y)  x 是左右偏移量，y 是上下偏移量
+	2、旋转 
+		rotate(angle)  旋转的角度(angle)
+	3、缩放
+		scale(x, y)  x 为水平缩放因子，y 为垂直缩放因子
+
+
+绘制线性渐变
+	context.createLinearGradient(xstart,ystart,xend,yend); //x轴起点，y轴起点，x轴结尾，y轴结尾
+	addColorStop(offset,color) //起始偏移量，颜色
+	addColorStop(offset,color) //终点偏移量，颜色
+
+	步骤：创建一个LinearGradient对象，调用addColorStop()函数，对象赋值给fillStyle，然后绘制图形
+
+
+绘制径向渐变
+	context.createRadialGradient(x1,y1,r1,x2,y2,r2); //开始圆的坐标(x1,y2)半径r1，结束圆的坐标（x2,y2）半径r2
+	步骤跟线性渐变一样
+
+
+canvas图形组合
+	globalCompositeOperation = type 这个属性设定了在画新图形时采用的遮盖策略
+	属性值：
+		source-over           --这是默认设置，这是默认设置，并在现有画布上下文之上绘制新图形。
+		source-in             --新图形只在新图形和目标画布重叠的地方绘制。其他的都是透明的
+		source-out            --在不与现有画布内容重叠的地方绘制新图形。
+		source-atop           --新图形只在与现有画布内容重叠的地方绘制。
+		destination-over      --在现有的画布内容后面绘制新的图形。
+		destination-in        --现有的画布内容保持在新图形和现有画布内容重叠的位置。其他的都是透明的。
+		destination-out       --现有内容保持在新图形不重叠的地方。
+		destination-atop      --现有的画布只保留与新图形重叠的部分，新的图形是在画布内容后面绘制的。
+		lighter               --两个重叠图形的颜色是通过颜色值相加来确定的。
+		copy                  --只显示新图形。
+		xor          	        --图像中，那些重叠和正常绘制之外的其他地方是透明的。
+
+		multiply               --将顶层像素与底层相应像素相乘，结果是一幅更黑暗的图片。
+		screen                 --像素被倒转，相乘，再倒转，结果是一幅更明亮的图片。
+		overlay                --multiply和screen的结合，原本暗的地方更暗，原本亮的地方更亮。
+		darken                 --保留两个图层中最暗的像素。
+		lighten                --保留两个图层中最亮的像素。
+		color-dodge            --将底层除以顶层的反置。
+		color-burn             --将反置的底层除以顶层，然后将结果反过来。
+		hard-light             --屏幕相乘（A combination of multiply and screen）类似于叠加，但上下图层互换了。
+		soft-light             --用顶层减去底层或者相反来得到一个正值。
+		difference             --一个柔和版本的强光（hard-light）。纯黑或纯白不会导致纯黑或纯白。
+		exclusion              --和difference相似，但对比度较低。
+		hue                    --保留了底层的亮度（luma）和色度（chroma），同时采用了顶层的色调（hue）。
+		saturation             --保留底层的亮度（luma）和色调（hue），同时采用顶层的色度（chroma）。
+		color                  --保留了底层的亮度（luma），同时采用了顶层的色调(hue)和色度(chroma)。
+		luminosity             --保持底层的色调（hue）和色度（chroma），同时采用顶层的亮度（luma）。
+
+
+canvas图形绘制阴影
+	shadowOffsetX  阴影横向位移
+		context.shadowOffsetX = 20
+
+	shadowOffsetY  阴影纵向位移
+		context.shadowOffsetY = 20
+
+	shadowColor     阴影的颜色
+		context.shadowColor = "rgba(100,100,100,0.5)"
+
+	shadowBlur       阴影的模糊范围
+		context.shadowBlur = 3.5
+
+
+canvas剪切
+	clip()只能遮罩在这个方法调用之后绘制的图像，如果是clip()方法调用之前绘制的图像，则无法实现遮罩。
